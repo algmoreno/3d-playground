@@ -50,37 +50,83 @@ const parent2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child3 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-parent2.position.x = 50;
-child1.position.x = 25;
-child1.position.y = -50;
-scene.add(parent1);
-scene.add(parent2);
-scene.add(child1);
 
-const xMidpoint = (parent1.position.x + parent2.position.x) / 2;
-// const midpointVector = parent1.position;
-const midpointVector = new THREE.Vector3(
-  xMidpoint,
-  parent1.position.y,
-  parent1.position.z,
+const childrenYPos = -50;
+const parentY = 0;
+parent2.position.x = parent1.position.x + 50;
+const parentMidpointX = (parent1.position.x + parent2.position.x) / 2;
+
+child1.position.x = -50;
+child1.position.y = childrenYPos;
+child2.position.x = parentMidpointX;
+child2.position.y = childrenYPos;
+child3.position.x = parentMidpointX + 75;
+child3.position.y = childrenYPos;
+
+const parentMidpoint = new THREE.Vector3(
+  parentMidpointX,
 );
 
-// Lines
+const childrenMiddleJoint = new THREE.Vector3(
+  parentMidpointX,
+  parentY + (childrenYPos/2),
+)
+
+const childrenEndJointL = new THREE.Vector3(
+  parentMidpointX - 75,
+  parentY + (childrenYPos/2),
+)
+
+const childrenEndJointR = new THREE.Vector3(
+  parentMidpointX + 75,
+  parentY + (childrenYPos/2),
+)
+
+// Points
 const pointSet1 = [parent1.position, parent2.position];
-const pointSet2 = [midpointVector, child1.position];
+const pointSet2 = [parentMidpoint, childrenMiddleJoint];
+const pointSet3 = [childrenEndJointL, childrenMiddleJoint];
+const pointSet4 = [childrenMiddleJoint, childrenEndJointR];
+const pointSet5 = [childrenEndJointL, child1.position];
+const pointSet6 = [childrenMiddleJoint, child2.position];
+const pointSet7 = [childrenEndJointR, child3.position];
+
+// Lines
 const parentLineGeo = new LineGeometry();
-const childLineGeo = new LineGeometry();
+const parentToChildrenGeo = new LineGeometry();
+const childrenEndLToMiddleGeo = new LineGeometry();
+const childrenMiddleJointToEndRGeo = new LineGeometry();
+const childrenLineToChild1Geo = new LineGeometry();
+const childrenLineToChild2Geo = new LineGeometry();
+const childrenLineToChild3Geo = new LineGeometry();
+
 parentLineGeo.setFromPoints(pointSet1);
-childLineGeo.setFromPoints(pointSet2);
+parentToChildrenGeo.setFromPoints(pointSet2);
+childrenEndLToMiddleGeo.setFromPoints(pointSet3);
+childrenMiddleJointToEndRGeo.setFromPoints(pointSet4);
+childrenLineToChild1Geo.setFromPoints(pointSet5);
+childrenLineToChild2Geo.setFromPoints(pointSet6);
+childrenLineToChild3Geo.setFromPoints(pointSet7);
+
 const lineMaterial = new LineMaterial({
   color: 0x0000000,
   linewidth: 10,
 });
 lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-const parentLine = new Line2(parentLineGeo, lineMaterial);
-const childLine = new Line2(childLineGeo, lineMaterial);
-scene.add(parentLine, childLine);
 
+const parentLine = new Line2(parentLineGeo, lineMaterial);
+const parentToChildrenLine = new Line2(parentToChildrenGeo, lineMaterial);
+const childrenLineL = new Line2(childrenEndLToMiddleGeo, lineMaterial);
+const childrenLineR = new Line2(childrenMiddleJointToEndRGeo, lineMaterial);
+const childrenLineLToChild1Line = new Line2(childrenLineToChild1Geo, lineMaterial);
+const childrenLineLToChild2Line = new Line2(childrenLineToChild2Geo, lineMaterial);
+const childrenLineLToChild3Line = new Line2(childrenLineToChild3Geo, lineMaterial);
+
+scene.add(parent1, parent2, child1, child2, child3, parentLine, 
+  parentToChildrenLine, childrenLineL, childrenLineR, childrenLineLToChild1Line, childrenLineLToChild2Line, childrenLineLToChild3Line);
+
+
+// Animate
 function animate() {
   // required if controls.enableDamping or controls.autoRotate are set to true
   controls.update();
