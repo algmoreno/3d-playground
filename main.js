@@ -19,63 +19,67 @@ camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-// Fully wrapped image on sphere
-const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load("./bg_0.jpg");
-texture.colorSpace = "srgb";
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-// texture.repeat.set(repeat, repeat);
-// texture.encoding = THREE.sRGBEncoding;
-const sphereGeometry = new THREE.SphereGeometry(15, 60, 92);
-const sphereMaterial = new THREE.MeshBasicMaterial({
-  map: texture,
-});
-//const material2 = new THREE.MeshMatcapMaterial
-
-const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere2.position.x = 50;
-scene.add(sphere1);
-scene.add(sphere2);
-
-const points = [sphere1.position, sphere2.position];
-//const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-const lineGeo = new LineGeometry();
-lineGeo.setFromPoints(points);
-const lineMaterial = new LineMaterial({
-  color: 0x0000000,
-  linewidth: 15,
-});
-lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-const line = new Line2(lineGeo, lineMaterial);
-scene.add(line);
-
 renderer.setAnimationLoop(animate);
 
+// Orbit Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 // controls.update() must be called after any manual changes to the camera's transform
 camera.position.set(0, 20, 100);
 controls.update();
 
-function animate() {
-  requestAnimationFrame(animate);
+// Fully wrapped image on sphere
+// const textureLoader = new THREE.TextureLoader();
+// const texture = textureLoader.load("./bg_0.jpg");
+// texture.colorSpace = "srgb";
+// texture.wrapS = THREE.RepeatWrapping;
+// texture.wrapT = THREE.RepeatWrapping;
+// texture.repeat.set(repeat, repeat);
+// texture.encoding = THREE.sRGBEncoding;
 
-  const positionAttribute = line.geometry.attributes.position;
-  positionAttribute.setXYZ(
-    0,
-    sphere1.position.x,
-    sphere1.position.y,
-    sphere1.position.z,
-  );
-  positionAttribute.setXYZ(
-    1,
-    sphere2.position.x,
-    sphere2.position.y,
-    sphere2.position.z,
-  );
-  positionAttribute.needsUpdate = true;
+// Sphere
+const sphereGeometry = new THREE.SphereGeometry(15, 30, 62);
+const sphereMaterial = new THREE.MeshMatcapMaterial({
+  // map: texture,
+  wireframe: true,
+  color: 0xafdafdafd,
+});
+//const material2 = new THREE.MeshMatcapMaterial
+
+const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const sphere3 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+sphere2.position.x = 50;
+sphere3.position.x = 25;
+sphere3.position.y = -50;
+scene.add(sphere1);
+scene.add(sphere2);
+scene.add(sphere3);
+
+const xMidpoint = (sphere1.position.x + sphere2.position.x) / 2;
+// const midpointVector = sphere1.position;
+const midpointVector = new THREE.Vector3(
+  xMidpoint,
+  sphere1.position.y,
+  sphere1.position.z,
+);
+
+// Lines
+const pointSet1 = [sphere1.position, sphere2.position];
+const pointSet2 = [midpointVector, sphere3.position];
+const parentLineGeo = new LineGeometry();
+const childLineGeo = new LineGeometry();
+parentLineGeo.setFromPoints(pointSet1);
+childLineGeo.setFromPoints(pointSet2);
+const lineMaterial = new LineMaterial({
+  color: 0x0000000,
+  linewidth: 10,
+});
+lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+const parentLine = new Line2(parentLineGeo, lineMaterial);
+const childLine = new Line2(childLineGeo, lineMaterial);
+scene.add(parentLine, childLine);
+
+function animate() {
   // required if controls.enableDamping or controls.autoRotate are set to true
   controls.update();
   renderer.render(scene, camera);
