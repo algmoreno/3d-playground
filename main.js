@@ -37,7 +37,7 @@ controls.update();
 // texture.encoding = THREE.sRGBEncoding;
 
 // Sphere
-const sphereGeometry = new THREE.SphereGeometry(15, 30, 62);
+const sphereGeometry = new THREE.SphereGeometry(15, 20, 40);
 const sphereMaterial = new THREE.MeshMatcapMaterial({
   // map: texture,
   wireframe: true,
@@ -45,27 +45,29 @@ const sphereMaterial = new THREE.MeshMatcapMaterial({
 });
 //const material2 = new THREE.MeshMatcapMaterial
 
-const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-const sphere3 = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere2.position.x = 50;
-sphere3.position.x = 25;
-sphere3.position.y = -50;
-scene.add(sphere1);
-scene.add(sphere2);
-scene.add(sphere3);
+const parent1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const parent2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const child1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const child2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+const child3 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+parent2.position.x = 50;
+child1.position.x = 25;
+child1.position.y = -50;
+scene.add(parent1);
+scene.add(parent2);
+scene.add(child1);
 
-const xMidpoint = (sphere1.position.x + sphere2.position.x) / 2;
-// const midpointVector = sphere1.position;
+const xMidpoint = (parent1.position.x + parent2.position.x) / 2;
+// const midpointVector = parent1.position;
 const midpointVector = new THREE.Vector3(
   xMidpoint,
-  sphere1.position.y,
-  sphere1.position.z,
+  parent1.position.y,
+  parent1.position.z,
 );
 
 // Lines
-const pointSet1 = [sphere1.position, sphere2.position];
-const pointSet2 = [midpointVector, sphere3.position];
+const pointSet1 = [parent1.position, parent2.position];
+const pointSet2 = [midpointVector, child1.position];
 const parentLineGeo = new LineGeometry();
 const childLineGeo = new LineGeometry();
 parentLineGeo.setFromPoints(pointSet1);
