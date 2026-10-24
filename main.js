@@ -37,7 +37,7 @@ controls.update();
 // texture.encoding = THREE.sRGBEncoding;
 
 // Sphere
-const sphereGeometry = new THREE.SphereGeometry(15, 20, 40);
+const sphereGeometry = new THREE.SphereGeometry(15, 25, 40);
 const sphereMaterial = new THREE.MeshMatcapMaterial({
   // map: texture,
   wireframe: true,
@@ -45,28 +45,39 @@ const sphereMaterial = new THREE.MeshMatcapMaterial({
 });
 //const material2 = new THREE.MeshMatcapMaterial
 
+// Objects
 const parent1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const parent2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 const child3 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
+// Positioning
 const childrenYPos = -50;
 const parentY = 0;
+parent1.position.x = -25
 parent2.position.x = parent1.position.x + 50;
 const parentMidpointX = (parent1.position.x + parent2.position.x) / 2;
 
-child1.position.x = -50;
+child1.position.x = parentMidpointX - 75;
 child1.position.y = childrenYPos;
 child2.position.x = parentMidpointX;
 child2.position.y = childrenYPos;
 child3.position.x = parentMidpointX + 75;
 child3.position.y = childrenYPos;
 
+// Points for creating lines
 const parentMidpoint = new THREE.Vector3(
   parentMidpointX,
 );
 
+// one point for each child
+// childrenMiddleJoint is pretty constant
+// the other joints and children positionings will depend on 
+// the number of children/siblings and then partner status
+// sibling order is also important - always oldest to youngest from left to right
+// with odd number of siblings there will be a child at the parent middle point
+// with even number siblings children will essentially line up with parents x position
 const childrenMiddleJoint = new THREE.Vector3(
   parentMidpointX,
   parentY + (childrenYPos/2),
@@ -82,7 +93,7 @@ const childrenEndJointR = new THREE.Vector3(
   parentY + (childrenYPos/2),
 )
 
-// Points
+// Point sets - starting points for lines
 const pointSet1 = [parent1.position, parent2.position];
 const pointSet2 = [parentMidpoint, childrenMiddleJoint];
 const pointSet3 = [childrenEndJointL, childrenMiddleJoint];
@@ -92,6 +103,13 @@ const pointSet6 = [childrenMiddleJoint, child2.position];
 const pointSet7 = [childrenEndJointR, child3.position];
 
 // Lines
+const lineMaterial = new LineMaterial({
+  color: 0x0000000,
+  linewidth: 5,
+});
+lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+
+// Line Geometry
 const parentLineGeo = new LineGeometry();
 const parentToChildrenGeo = new LineGeometry();
 const childrenEndLToMiddleGeo = new LineGeometry();
@@ -108,12 +126,7 @@ childrenLineToChild1Geo.setFromPoints(pointSet5);
 childrenLineToChild2Geo.setFromPoints(pointSet6);
 childrenLineToChild3Geo.setFromPoints(pointSet7);
 
-const lineMaterial = new LineMaterial({
-  color: 0x0000000,
-  linewidth: 10,
-});
-lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-
+// Lines
 const parentLine = new Line2(parentLineGeo, lineMaterial);
 const parentToChildrenLine = new Line2(parentToChildrenGeo, lineMaterial);
 const childrenLineL = new Line2(childrenEndLToMiddleGeo, lineMaterial);
@@ -123,8 +136,8 @@ const childrenLineLToChild2Line = new Line2(childrenLineToChild2Geo, lineMateria
 const childrenLineLToChild3Line = new Line2(childrenLineToChild3Geo, lineMaterial);
 
 scene.add(parent1, parent2, child1, child2, child3, parentLine, 
-  parentToChildrenLine, childrenLineL, childrenLineR, childrenLineLToChild1Line, childrenLineLToChild2Line, childrenLineLToChild3Line);
-
+  parentToChildrenLine, childrenLineL, childrenLineR, childrenLineLToChild1Line, 
+  childrenLineLToChild2Line, childrenLineLToChild3Line);
 
 // Animate
 function animate() {
